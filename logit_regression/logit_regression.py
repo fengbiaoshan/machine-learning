@@ -3,7 +3,7 @@
 import math
 from numpy import *
 
-
+#origbeta为使用牛顿迭代法的beta初始值(初始值需要人为指定)，beta = (x;1)，是自变量x向量扩充一维。n为迭代的次数，次数越高越精确
 def lr_newton(xlist, ylist, origbeta, n):
     xhatlist = []
     for x in xlist:
