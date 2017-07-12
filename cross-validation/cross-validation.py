@@ -47,8 +47,8 @@ def linear_classifier(beta, x):
         return 0
 
 
-def ten_fold_cross_validation(data):
-    errorcount = 0
+def k_fold_cross_validation(data, k):
+    errorproall = 0.0
     data_number = data.shape[0]
     xlist = np.hsplit(data.iloc[:,:-1].values.T, data_number)
     ylist = []
@@ -57,22 +57,28 @@ def ten_fold_cross_validation(data):
             ylist.append(0)
         else:
             ylist.append(1)
-    for i in range(1,11):
-        xtrainlist = xlist[:data_number/10*(i-1)] + xlist[data_number/10*i:]
-        ytrainlist = ylist[:data_number/10*(i-1)] + ylist[data_number/10*i:]
+    for i in range(1,k+1):
+        xtrainlist =xlist[:data_number/2/k*(i-1)] + xlist[data_number/2/k*(i):data_number/2+data_number/2/k*(i-1)] + xlist[data_number/2+data_number/2/k*i:]
+        ytrainlist = ylist[:data_number/2/k*(i-1)] + ylist[data_number/2/k*(i):data_number/2+data_number/2/k*(i-1)] + ylist[data_number/2+data_number/2/k*i:]
         origbeta = np.array([[0]*(xlist[0].shape[0]+1)]).T
         origbeta[-1] = 1
-        beta = lr_newton(xtrainlist,ytrainlist,origbeta,100)
-        xtestlist = xlist[data_number/10*(i-1):data_number/10*i]
-        ytestlist = ylist[data_number/10*(i-1):data_number/10*i]
-        
+        print len(xtrainlist),len(ytrainlist)
+        beta = lr_newton(xtrainlist,ytrainlist,origbeta,50)
+        xtestlist = xlist[data_number/2/k*(i-1):data_number/2/k*(i)] + xlist[data_number/2+data_number/2/k*(i-1):data_number/2+data_number/2/k*i]
+        ytestlist = ylist[data_number/2/k*(i-1):data_number/2/k*(i)] + ylist[data_number/2+data_number/2/k*(i-1):data_number/2+data_number/2/k*i]
+        print len(xtestlist),len(ytestlist)
+        errorcount = 0.0
+        for i in xrange(len(xtestlist)):
+            if linear_classifier(beta, xtestlist[i]) != ytestlist[i]:
+                errorcount += 1
+        errorproall += errorcount/k
     
-    
+    return errorproall/k
 
 if __name__ == "__main__":
     data = pd.read_csv("iris.data",header=None,names=["sl","sw","pl","pw","class"])
     data = data.iloc[:100,:]
-    ten_fold_cross_validation(data)
+    print k_fold_cross_validation(data,10)
     
 
 
