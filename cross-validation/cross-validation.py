@@ -58,27 +58,35 @@ def k_fold_cross_validation(data, k):
         else:
             ylist.append(1)
     for i in range(1,k+1):
-        xtrainlist =xlist[:data_number/2/k*(i-1)] + xlist[data_number/2/k*(i):data_number/2+data_number/2/k*(i-1)] + xlist[data_number/2+data_number/2/k*i:]
-        ytrainlist = ylist[:data_number/2/k*(i-1)] + ylist[data_number/2/k*(i):data_number/2+data_number/2/k*(i-1)] + ylist[data_number/2+data_number/2/k*i:]
+        if k == data_number:
+            xtrainlist = xlist[:i-1] + xlist[i:]
+            ytrainlist = ylist[:i-1] + ylist[i:]
+        else:
+            xtrainlist = xlist[:data_number/2/k*(i-1)] + xlist[data_number/2/k*(i):data_number/2+data_number/2/k*(i-1)] + xlist[data_number/2+data_number/2/k*i:]
+            ytrainlist = ylist[:data_number/2/k*(i-1)] + ylist[data_number/2/k*(i):data_number/2+data_number/2/k*(i-1)] + ylist[data_number/2+data_number/2/k*i:]
+        
         origbeta = np.array([[0]*(xlist[0].shape[0]+1)]).T
         origbeta[-1] = 1
-        print len(xtrainlist),len(ytrainlist)
-        beta = lr_newton(xtrainlist,ytrainlist,origbeta,50)
-        xtestlist = xlist[data_number/2/k*(i-1):data_number/2/k*(i)] + xlist[data_number/2+data_number/2/k*(i-1):data_number/2+data_number/2/k*i]
-        ytestlist = ylist[data_number/2/k*(i-1):data_number/2/k*(i)] + ylist[data_number/2+data_number/2/k*(i-1):data_number/2+data_number/2/k*i]
-        print len(xtestlist),len(ytestlist)
+        beta = lr_newton(xtrainlist,ytrainlist,origbeta,10)
+        if k == data_number:
+            xtestlist = [xlist[i-1]]
+            ytestlist = [ylist[i-1]]
+        else:
+            xtestlist = xlist[data_number/2/k*(i-1):data_number/2/k*(i)] + xlist[data_number/2+data_number/2/k*(i-1):data_number/2+data_number/2/k*i]
+            ytestlist = ylist[data_number/2/k*(i-1):data_number/2/k*(i)] + ylist[data_number/2+data_number/2/k*(i-1):data_number/2+data_number/2/k*i]
         errorcount = 0.0
         for i in xrange(len(xtestlist)):
             if linear_classifier(beta, xtestlist[i]) != ytestlist[i]:
                 errorcount += 1
-        errorproall += errorcount/k
+        errorproall += errorcount/(data_number/k)
     
     return errorproall/k
 
 if __name__ == "__main__":
     data = pd.read_csv("iris.data",header=None,names=["sl","sw","pl","pw","class"])
-    data = data.iloc[:100,:]
+    data = data.iloc[50:150,:]
     print k_fold_cross_validation(data,10)
+    print k_fold_cross_validation(data,100)
     
 
 
