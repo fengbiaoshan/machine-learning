@@ -14,7 +14,7 @@ def lr_newton(xlist, ylist, origbeta, n):
         beta = beta - dot(linalg.inv(hesse(xhatlist,beta)),jacobi(xhatlist,ylist,beta))
     return beta
 
-def jacobi(xhatlist,ylist,beta):
+def jacobi(xhatlist,ylist,beta):   #雅可比矩阵，当函数是从多维映射到一维时这个是个向量，这个向量其实就是梯度（由一阶偏导组成的向量），用于数值优化的牛顿法
     n = xhatlist[0].shape[0]
     result = array([[0]*n]).T
     for i in xrange(len(xhatlist)):
@@ -23,7 +23,7 @@ def jacobi(xhatlist,ylist,beta):
         result = result + dot(xhat,(ylist[i]-p1))
     return -result
 
-def hesse(xhatlist,beta):
+def hesse(xhatlist,beta):  #海森矩阵，由二阶偏导组成的矩阵，用于数值优化的牛顿法
     n = xhatlist[0].shape[0]
     result = array([[0]*n for i in range(n)])
     for i in xrange(len(xhatlist)):
